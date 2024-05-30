@@ -42,3 +42,15 @@ application {
     // Define the main class for the application.
     mainClass = 'lab6.Components'
 }
+
+run {
+    // Accept User Input in Linux Command
+    standardInput = System.in
+}
+
+test {
+    testLogging {
+        showStandardStreams = true;
+        exceptionFormat 'full'
+    }
+}

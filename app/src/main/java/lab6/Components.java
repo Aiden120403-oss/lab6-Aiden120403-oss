@@ -3,10 +3,54 @@
  */
 package lab6;
 
+import java.io.*;
+import java.io.File;
+import java.util.Scanner;
+import java.util.*;
+
+
 public class Components {
 
     public static void main(String[] args) {
         Components comp = new Components();
-        System.out.println("Hello, World");
+        File file = new File(args[0]);
+        
+        try {
+            Scanner sc = new Scanner(file);
+            // Nodes # of read 1st line
+            String FirstLine = sc.nextLine();
+            int nodeNum = Integer.parseInt(FirstLine); // Convert to integer value
+            int component = 0;
+            ArrayList<ArrayList<Integer>> AM = new ArrayList<ArrayList<Integer>>(nodeNum);
+            //keep track of snakes
+            while(sc.hasNextLine()) {
+                String snake = sc.nextLine();
+                char 1stNode = snake.charAt(0);
+                char 2ndNode = snake.charAt(1);
+                int input1 = Integer.parseInt(1stNode);
+                int input2 = Integer.parseInt(2ndNode);
+                AM.get(input1).add(input2);
+                AM.get(input2).add(input1);
+                //no snakes -> new snakes
+                //case 1
+                if(AM[input1].size() == 0 && AM[input2].size() == 0) {
+                    component++;
+                }
+                else {
+                    continue;
+                }
+                // old snakes grows
+                //case 2
+
+                //snakes combine
+                //case 3
+            }
+            //keep track with data structure
+            System.out.println("Components of Graph: " + components);
+
+        }catch(FileNotFoundException e) {
+            System.out.println("Error: File Note Found");
+        }
+        
     }
 }
