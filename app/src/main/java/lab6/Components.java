@@ -3,54 +3,99 @@
  */
 package lab6;
 
-import java.io.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.*;
+
+import org.checkerframework.checker.units.qual.A;
 
 
 public class Components {
 
+    private static int vertex;
+    private static LinkedList<Integer>[] ADJ;
+    static ArrayList<ArrayList<Integer>> AL = new ArrayList<ArrayList<Integer>>(vertex);
+
+    Components(int nodes) {
+        vertex = nodes;
+        ADJ = new LinkedList[vertex];
+        for (int i = 0; i < vertex; i++) {
+            ADJ[i] = new LinkedList(); 
+        }
+    }
+
     public static void main(String[] args) {
-        Components comp = new Components();
+
         File file = new File(args[0]);
         
         try {
             Scanner sc = new Scanner(file);
-            // Nodes # of read 1st line
-            String FirstLine = sc.nextLine();
-            int nodeNum = Integer.parseInt(FirstLine); // Convert to integer value
-            int component = 0;
-            ArrayList<ArrayList<Integer>> AM = new ArrayList<ArrayList<Integer>>(nodeNum);
-            //keep track of snakes
-            while(sc.hasNextLine()) {
-                String snake = sc.nextLine();
-                char 1stNode = snake.charAt(0);
-                char 2ndNode = snake.charAt(1);
-                int input1 = Integer.parseInt(1stNode);
-                int input2 = Integer.parseInt(2ndNode);
-                AM.get(input1).add(input2);
-                AM.get(input2).add(input1);
-                //no snakes -> new snakes
-                //case 1
-                if(AM[input1].size() == 0 && AM[input2].size() == 0) {
-                    component++;
-                }
-                else {
-                    continue;
-                }
-                // old snakes grows
-                //case 2
 
-                //snakes combine
-                //case 3
-            }
+            String FirstLine = sc.nextLine();
+
+            int nodeNum = Integer.parseInt(FirstLine); // Convert to integer value
+            Components comp = new Components(nodeNum);
+
+            //keep track of snake
+            BuildList(sc, AL, vertex, ADJ);
+            DFS();
+            
             //keep track with data structure
-            System.out.println("Components of Graph: " + components);
+            System.out.println("Components of Graph: " + comp.AL.size());
+            for(int i = 0; i < vertex; i++) {
+                int edges = comp.AL.get(i).size();
+                for(int j = 0; j < edges; j++) {
+                    int startVertex = i;
+                    int endVertex = AL.get(i).get(j);
+                    System.out.printf("Vertex %d is connected to vertex %d%n", startVertex, endVertex);
+                }
+            }
 
         }catch(FileNotFoundException e) {
             System.out.println("Error: File Note Found");
         }
         
+    }
+    
+    public static void ALSearch(int NodeNum, ArrayList<Integer> AL, boolean[] visitedNode, LinkedList[] ADJ) {
+        visitedNode[NodeNum] = true;
+        AL.add(NodeNum);
+        System.out.print(NodeNum + " ");
+        Iterator<Integer> traverser = ADJ[NodeNum].iterator();
+ 
+        while (traverser.hasNext()) {
+            int n = traverser.next();
+            if (!visitedNode[n])
+                ALSearch(n, AL, visitedNode, ADJ);
+        }
+    }
+
+    public static void DFS() {
+        boolean[] visitedNode = new boolean[vertex];
+        for(int n = 0; n < vertex; n++) {
+            ArrayList<Integer> snake = new ArrayList<Integer>();
+            if(!visitedNode[n]) {
+                ALSearch(n, snake, visitedNode, ADJ);
+                AL.add(snake);
+            }
+        }
+    }
+    
+    public static void BuildList(Scanner sc, ArrayList<ArrayList<Integer>> AM, int nodeNum, LinkedList[] ADJ) {
+        for(int i=0; i < nodeNum; i++) {
+            AM.add(new ArrayList());
+        }
+        while(sc.hasNextLine()) {
+                String snake = sc.nextLine();
+                char Node1 = snake.charAt(0);
+                char Node2 = snake.charAt(1);
+                int input1 = Integer.parseInt(String.valueOf(Node1));
+                int input2 = Integer.parseInt(String.valueOf(Node2));
+                ADJ[input1].add(input2);
+                ADJ[input2].add(input1);
+        }
     }
 }
