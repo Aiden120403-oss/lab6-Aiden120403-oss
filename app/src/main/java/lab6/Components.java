@@ -9,18 +9,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
-
-import org.checkerframework.checker.units.qual.A;
+import java.util.Arrays;
+import java.io.*;
 
 
 public class Components {
 
-    private static int vertex;
-    private static LinkedList<Integer>[] ADJ;
-    static ArrayList<ArrayList<Integer>> AL = new ArrayList<ArrayList<Integer>>(vertex);
+    private static int vertex; // Adjacent list size
+    private static LinkedList<Integer>[] ADJ; // Adjacent list
+    static ArrayList<ArrayList<Integer>> AL = new ArrayList<ArrayList<Integer>>(vertex); // Adjacent list collision handler
 
     Components(int nodes) {
-        vertex = nodes;
+        vertex = nodes + 1;
         ADJ = new LinkedList[vertex];
         for (int i = 0; i < vertex; i++) {
             ADJ[i] = new LinkedList(); 
@@ -28,31 +28,30 @@ public class Components {
     }
 
     public static void main(String[] args) {
-
-        File file = new File(args[0]);
+        // This entire code only handles 2 single digit nodes, the assignment provided no specification 
+        // on how many node or the size of the nodes
+        File file = new File(args[0]); // get text file
         
         try {
-            Scanner sc = new Scanner(file);
+            Scanner sc = new Scanner(file); // read input.txt
 
-            String FirstLine = sc.nextLine();
+            String FirstLine = sc.nextLine(); // get number of nodes by reading first line
 
-            int nodeNum = Integer.parseInt(FirstLine); // Convert to integer value
-            Components comp = new Components(nodeNum);
-
-            //keep track of snake
-            BuildList(sc, AL, vertex, ADJ);
-            DFS();
-            
-            //keep track with data structure
-            System.out.println("Components of Graph: " + comp.AL.size());
-            for(int i = 0; i < vertex; i++) {
-                int edges = comp.AL.get(i).size();
-                for(int j = 0; j < edges; j++) {
-                    int startVertex = i;
-                    int endVertex = AL.get(i).get(j);
-                    System.out.printf("Vertex %d is connected to vertex %d%n", startVertex, endVertex);
-                }
+            int nodeNum = Integer.parseInt(FirstLine); // Convert node numers to integer value
+            Components comp = new Components(nodeNum); // passs node size to constructor
+            while(sc.hasNextLine()) { // traverse through scanner object
+                String snake = sc.nextLine(); // convert 2 characters in returned string to add to AL
+                char Node1 = snake.charAt(0);
+                char Node2 = snake.charAt(1);
+                int input1 = Integer.parseInt(String.valueOf(Node1));
+                int input2 = Integer.parseInt(String.valueOf(Node2));
+                BuildList(sc, input1, input2); // take integers to build adjacency list
             }
+            DFS(); // depth-first search
+            
+            //print number of components
+            System.out.println("Components of Graph: " + AL.size());
+            
 
         }catch(FileNotFoundException e) {
             System.out.println("Error: File Note Found");
@@ -60,42 +59,32 @@ public class Components {
         
     }
     
-    public static void ALSearch(int NodeNum, ArrayList<Integer> AL, boolean[] visitedNode, LinkedList[] ADJ) {
-        visitedNode[NodeNum] = true;
-        AL.add(NodeNum);
-        System.out.print(NodeNum + " ");
-        Iterator<Integer> traverser = ADJ[NodeNum].iterator();
+    public static void ALSearch(int NodeNum, ArrayList<Integer> AL, boolean[] visitedNode) {
+        visitedNode[NodeNum] = true; // verify node is being currently visited
+        AL.add(NodeNum); // build AL<> to keep track of data structure
+        Iterator<Integer> traverser = ADJ[NodeNum].iterator(); // declare iterator for collision handling
  
-        while (traverser.hasNext()) {
-            int n = traverser.next();
-            if (!visitedNode[n])
-                ALSearch(n, AL, visitedNode, ADJ);
+        while (traverser.hasNext()) { // while iterator is not empty of elements in the column from the row in AL<>
+            int n = traverser.next(); // assign which node the iterator is checking
+            if (!visitedNode[n]) // keep checking the column until no availale nodes exist
+                ALSearch(n, AL, visitedNode); // otherwise, while nodes are available, keep checking the column
         }
     }
 
     public static void DFS() {
-        boolean[] visitedNode = new boolean[vertex];
-        for(int n = 0; n < vertex; n++) {
-            ArrayList<Integer> snake = new ArrayList<Integer>();
-            if(!visitedNode[n]) {
-                ALSearch(n, snake, visitedNode, ADJ);
+        boolean[] visitedNode = new boolean[vertex]; // declare boolean[] to verify visited node
+        for(int n = 0; n < vertex; n++) {  // visit each Array List (row) element in AL<> with snake <>
+            ArrayList<Integer> snake = new ArrayList<Integer>(); // tempoaray array list to hold values for comparison
+            if(!visitedNode[n]) { // while there are nodes to visit, move through array list
+                ALSearch(n, snake, visitedNode);
                 AL.add(snake);
             }
         }
     }
     
-    public static void BuildList(Scanner sc, ArrayList<ArrayList<Integer>> AM, int nodeNum, LinkedList[] ADJ) {
-        for(int i=0; i < nodeNum; i++) {
-            AM.add(new ArrayList());
-        }
-        while(sc.hasNextLine()) {
-                String snake = sc.nextLine();
-                char Node1 = snake.charAt(0);
-                char Node2 = snake.charAt(1);
-                int input1 = Integer.parseInt(String.valueOf(Node1));
-                int input2 = Integer.parseInt(String.valueOf(Node2));
-                ADJ[input1].add(input2);
-                ADJ[input2].add(input1);
-        }
+    public static void BuildList(Scanner sc, int input1, int input2) {
+        // Build Adjacency List with linked list, undirected data structure
+        ADJ[input1].add(input2); 
+        ADJ[input2].add(input1);
     }
 }
